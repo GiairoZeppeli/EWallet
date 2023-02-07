@@ -14,7 +14,7 @@ type GetLast interface {
 }
 
 type GetBalance interface {
-	GetBalance(address string) (string, error)
+	GetBalance(address string) (float32, error)
 }
 
 type Service struct {
@@ -25,6 +25,7 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Send: NewSendService(repos.Send),
+		Send:       NewSendService(repos.Send),
+		GetBalance: NewGetBalanceService(repos.GetBalance),
 	}
 }

@@ -13,6 +13,7 @@ type GetLast interface {
 }
 
 type GetBalance interface {
+	GetBalance(address string) (float32, error)
 }
 
 type Repository struct {
@@ -23,6 +24,7 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		GetLast: NewSendPostgres(db),
+		Send:       NewSendPostgres(db),
+		GetBalance: NewGetBalancePostgres(db),
 	}
 }

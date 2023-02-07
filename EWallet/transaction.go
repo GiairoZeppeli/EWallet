@@ -1,7 +1,7 @@
 package EWallet
 
 type Transaction struct {
-	From   string  `json:"from" binding:"required"`
-	To     string  `json:"to" binding:"required"`
-	Amount float32 `json:"amount" binding:"required"`
+	From   string  `json:"from" binding:"required" db:"wallet_from"`
+	To     string  `json:"to" binding:"required" db:"wallet_to"`
+	Amount float32 `json:"amount" binding:"required" db:"amount"`
 }
