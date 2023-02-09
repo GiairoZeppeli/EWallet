@@ -20,7 +20,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		api.POST("/send", h.Send)
 		api.GET("/wallet/:address/balance", h.GetBalance)
-		api.GET("transactions?count=N", h.GetLast)
+		api.GET("/transactions", h.GetLast)
 	}
 	return router
 }

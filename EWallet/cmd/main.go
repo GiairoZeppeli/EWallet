@@ -41,6 +41,8 @@ func main() {
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
+	repository.NewInitDbPostgres(db).InitDb()
+
 	srv := new(EWallet.Server)
 	go func() {
 		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {

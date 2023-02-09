@@ -14,5 +14,10 @@ func (h *Handler) GetBalance(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, balance)
+	c.JSON(http.StatusOK, getBalanceResponse{
+		Balance: balance})
+}
+
+type getBalanceResponse struct {
+	Balance float32 `json:"balance"`
 }

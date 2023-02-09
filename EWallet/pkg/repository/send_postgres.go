@@ -16,20 +16,41 @@ func NewSendPostgres(db *sqlx.DB) *SendPostgres {
 }
 
 func (r *SendPostgres) Send(transaction EWallet.Transaction) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
 	var from_amount float32
+	getFromAmountQuery := fmt.Sprintf("SELECT amount FROM %s WHERE address=$1", walletsTable)
+	row := tx.QueryRow(getFromAmountQuery, transaction.From)
+	if err := row.Scan(&from_amount); err != nil {
+		tx.Rollback()
+		return errors.New("cant read balanceFrom")
+	}
 
-	query := fmt.Sprintf("SELECT amount FROM %s WHERE address=$1 RETURNING amount", walletsTable)
-	row := r.db.QueryRow(query, transaction.From)
-	row.Scan(&from_amount)
-
-	if err := from_amount < transaction.Amount; err != true {
+	if from_amount < transaction.Amount {
 		return errors.New("Insufficient Funds")
 	}
-	query = fmt.Sprintf("UPDATE %s SET amount = amount+$1 WHERE address=$2", walletsTable)
-	row = r.db.QueryRow(query, transaction.From)
-	r.db.Exec(query, transaction.Amount, transaction.To)
+	updateToBalanceQuery := fmt.Sprintf("UPDATE %s SET amount = amount+$1 WHERE address=$2", walletsTable)
+	_, err = tx.Exec(updateToBalanceQuery, transaction.Amount, transaction.To)
+	if err != nil {
+		tx.Rollback()
+		return errors.New("cant update balance")
+	}
+	updateFromBalanceQuery := fmt.Sprintf("UPDATE %s SET amount = amount-$1 WHERE address=$2", walletsTable)
+	_, err = tx.Exec(updateFromBalanceQuery, transaction.Amount, transaction.From)
+	if err != nil {
+		tx.Rollback()
+		return errors.New("cant update balance")
+	}
 
-	query = fmt.Sprintf("INSERT INTO %s (wallet_from, wallet_to, amount) values ($1, $2, $3)", transactionsTable)
-	r.db.Exec(query, transaction.From, transaction.To, transaction.Amount)
+	createTransactionQuery := fmt.Sprintf("INSERT INTO %s (wallet_from, wallet_to, amount) values ($1, $2, $3)", transactionsTable)
+	_, err = tx.Exec(createTransactionQuery, transaction.From, transaction.To, transaction.Amount)
+	if err != nil {
+		tx.Rollback()
+		return errors.New("cant add transaction into database")
+	}
+	tx.Commit()
 	return nil
 }

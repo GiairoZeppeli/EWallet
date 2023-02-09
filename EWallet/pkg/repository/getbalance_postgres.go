@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
@@ -15,10 +16,10 @@ func NewGetBalancePostgres(db *sqlx.DB) *GetBalancePostgres {
 
 func (r *GetBalancePostgres) GetBalance(address string) (float32, error) {
 	var balance float32
-	query := fmt.Sprintf("SELECT amount FROM %s WHERE address=%s", walletsTable)
-	row := r.db.QueryRow(query)
+	query := fmt.Sprintf("SELECT amount FROM %s WHERE address=$1", walletsTable)
+	row := r.db.QueryRow(query, address)
 	if err := row.Scan(&balance); err != nil {
-		return 0, nil
+		return 0, errors.New("cant get balance from database")
 	}
 	return balance, nil
 }
