@@ -14,9 +14,23 @@ services:
   db:
     restart: always
     image: postgres:latest
+
     volumes:
       - ./.database/postgres/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=1488
     ports:
-      - 5438:5432
+      - "5438:5432"
+
+  migrate:
+      restart: always
+      image: migrate/migrate
+
+      depends_on:
+        - db
+
+      volumes:
+        - ./schema:/schema
+      command: [ "-path", "/schema", "-database",  "postgres://postgres:1488@db:5432/postgres?sslmode=disable", "up" ]
+      links:
+        - db

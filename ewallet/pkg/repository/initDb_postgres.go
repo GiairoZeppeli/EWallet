@@ -24,7 +24,7 @@ func (r *InitDbPostgres) InitDb() error {
 	if err := row.Scan(&isEmpty); err != nil {
 		return errors.New("cant check db to empty")
 	}
-	if isEmpty {
+	if !isEmpty {
 		for i := 0; i < 10; i++ {
 			s := strconv.FormatInt(int64(i), 10)
 			h := sha1.New()

@@ -36,12 +36,11 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
+	repository.NewInitDbPostgres(db).InitDb()
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
-
-	repository.NewInitDbPostgres(db).InitDb()
 
 	srv := new(ewallet.Server)
 	go func() {
