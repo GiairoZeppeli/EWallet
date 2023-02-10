@@ -2,11 +2,15 @@
 
 Тестовое задание
 _____
-Для запуска нужно применить миграции:
+Для запуска сначала сбилдим контейнер:
 ```
-    migrate -path ./schema -database "postgres://postgres:1488@localhost:5438/postgres?sslmode=disable" up
+docker-compose build ewallet
 ```
-Далее запустить контейнер:
+Далее запустим сам контейнер:
 ```
-    docker-compose up --build ewallet
+docker-compose up ewallet
+```
+Для запуска впервые нужно применить миграции:
+```
+migrate -path ./schema -database "postgres://postgres:1488@localhost:5438/postgres?sslmode=disable" up
 ```
