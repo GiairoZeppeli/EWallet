@@ -36,7 +36,6 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
-	repository.NewInitDbPostgres(db).InitDb()
 
 	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
@@ -44,6 +43,7 @@ func main() {
 
 	srv := new(ewallet.Server)
 	go func() {
+		repository.NewInitDbPostgres(db).InitDb()
 		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 			logrus.Fatalf("error occured while running http server: %s", err.Error())
 		}
